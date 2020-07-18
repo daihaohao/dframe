@@ -14,5 +14,9 @@
             "Aplication\\": "src"
         }
     },
-    "require": {}
+    "require": {
+        "hassankhan/config": "^2.1",
+        "doctrine/orm": "^2.7",
+        "symfony/yaml": "^5.1"
+    }
 }
