@@ -24,7 +24,8 @@ class RpcServer
         return new self();
     }
     public function createServer($rpc_config){
-        $server = stream_socket_server("tcp://{$rpc_config['host']}:{$rpc_config['port']}", $errno, $errstr);
+        $protocol = isset($rpc_config['protocol']) ? $rpc_config['protocol'] : 'tcp';
+        $server = stream_socket_server($protocol."://{$rpc_config['host']}:{$rpc_config['port']}", $errno, $errstr);
         if (!$server){
             exit( [$errno,'没有待处理数据'.PHP_EOL] );
         }
