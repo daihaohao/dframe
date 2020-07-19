@@ -19,20 +19,26 @@ class RpcServer
      * @var null
      * Description:
      */
-    private static $server=null;
-    public static function init(){
+    private static $server = null;
+
+    public static function init()
+    {
         return new self();
     }
-    public function createServer($rpc_config){
+
+    public function createServer($rpc_config)
+    {
         $protocol = isset($rpc_config['protocol']) ? $rpc_config['protocol'] : 'tcp';
-        $server = stream_socket_server($protocol."://{$rpc_config['host']}:{$rpc_config['port']}", $errno, $errstr);
-        if (!$server){
-            exit( [$errno,'没有待处理数据'.PHP_EOL] );
+        $server = stream_socket_server($protocol . "://{$rpc_config['host']}:{$rpc_config['port']}", $errno, $errstr);
+        if (!$server) {
+            exit([$errno, '没有待处理数据' . PHP_EOL]);
         }
         self::$server = $server;
         $this->serverPath($rpc_config);
     }
-    private function serverPath($config){
+
+    private function serverPath($config)
+    {
         if (isset($config['path']) && !empty($config['path'])) {
             $path = $config['path'];
             $realPath = realpath(__DIR__ . $path);
@@ -42,7 +48,9 @@ class RpcServer
 //        $this->config['real_path'] = $realPath;
         }
     }
-    private function process(){
+
+    private function process()
+    {
         while (true) {
             if (self::$server) {
                 $client = stream_socket_accept(self::$server);
@@ -61,6 +69,7 @@ class RpcServer
             }
         }
     }
+
     /**
      * @param $class
      * @param $method
@@ -71,7 +80,7 @@ class RpcServer
     {
         if ($class && $method) {
             // 首字母转为大写
-            $class = '\app\controller\\'.ucfirst($class) . 'Controller';
+            $class = '\app\controller\\' . ucfirst($class) . 'Controller';
             var_dump($class);
             //实例化类，并调用客户端指定的方法
             $obj = new $class();
@@ -90,6 +99,7 @@ class RpcServer
             fwrite($client, $data);
         }
     }
+
     /**
      * Description: 解析协议
      */
@@ -109,7 +119,9 @@ class RpcServer
     {
         $data = json_encode($data, JSON_UNESCAPED_UNICODE);
     }
-    public function run(){
+
+    public function run()
+    {
         $rpc_config = Config::get('rpc');
         $this->createServer($rpc_config);
         $this->serverPath($rpc_config);

@@ -1,6 +1,6 @@
 <?php
 return [
-    'db'=>[
-        'name'=>'rpc'
+    'db' => [
+        'name' => 'rpc'
     ]
 ];

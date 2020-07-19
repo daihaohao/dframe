@@ -1,6 +1,6 @@
 <?php
 return [
-    'redis_r'=>[
-        'name'=>'rpc_redis'
+    'redis_r' => [
+        'name' => 'rpc_redis'
     ]
 ];
