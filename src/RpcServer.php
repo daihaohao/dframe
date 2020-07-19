@@ -34,6 +34,7 @@ class RpcServer
             exit([$errno, 'not link' . PHP_EOL]);
         }
         self::$server = $server;
+        echo PHP_EOL.$protocol." start listen ".$rpc_config['port'].PHP_EOL;
         $this->serverPath($rpc_config);
     }
 
