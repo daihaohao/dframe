@@ -6,8 +6,8 @@ namespace app\controller;
 
 class AppController
 {
-    public function test()
+    public function test($input)
     {
-        return 123;
+        return $input;
     }
 }

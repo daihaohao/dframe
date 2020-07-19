@@ -10,11 +10,11 @@ class RpcServer
      * @var array
      * Description: 本类常用配置
      */
-    private $config = [
-        'real_path' => '',
-        'max_size' => 2048 // 最大接收数据大小
-    ];
-
+//    private static $config = [
+//        'real_path' => '',
+//        'max_size' => 2048 // 最大接收数据大小
+//    ];
+    private static $max_size = 2048;
     /**
      * @var null
      * Description:
@@ -30,8 +30,9 @@ class RpcServer
     {
         $protocol = isset($rpc_config['protocol']) ? $rpc_config['protocol'] : 'tcp';
         $server = stream_socket_server($protocol . "://{$rpc_config['host']}:{$rpc_config['port']}", $errno, $errstr);
+        self::$server = $server;
         if (!$server) {
-            exit([$errno, 'not link' . PHP_EOL]);
+            exit('Not Link');
         }
         self::$server = $server;
         echo PHP_EOL.$protocol." start listen ".$rpc_config['port'].PHP_EOL;
@@ -54,7 +55,6 @@ class RpcServer
     {
         while (true) {
             if (self::$server) {
-//
                 $read = [self::$server];
                 $write = null;
                 $except = null;
@@ -63,7 +63,7 @@ class RpcServer
                 if($result>0){
                     $client = stream_socket_accept(self::$server,0);
                     echo "有新连接\n";
-                    $buf = fread($client, $this->config['max_size']);
+                    $buf = fread($client, self::$max_size);
                     print_r('接收到的原始数据:' . $buf . "\n");
                     // 自定义协议目的是拿到类方法和参数(可改成自己定义的)
                     $this->parseProtocol($buf, $class, $method, $params);
@@ -95,11 +95,7 @@ class RpcServer
             if (!method_exists($obj, $method)) {
                 return $method . "方法不存在";
             }
-            if (!$params) {
-                $data = $obj->$method();
-            } else {
-                $data = $obj->$method($params);
-            }
+            $data = $obj->$method($params);
             // 打包数据
             $this->packProtocol($data);
             //把运行后的结果返回给客户端

@@ -16,8 +16,11 @@
         }
     },
     "require": {
+        "php": ">=5.3.3",
         "hassankhan/config": "^2.1",
         "doctrine/orm": "^2.7",
-        "symfony/yaml": "^5.1"
+        "symfony/yaml": "^5.1",
+        "psr/http-message": "^1.0",
+        "illuminate/database": "^7.20"
     }
 }
