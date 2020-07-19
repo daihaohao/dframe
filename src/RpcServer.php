@@ -54,8 +54,14 @@ class RpcServer
     {
         while (true) {
             if (self::$server) {
-                $client = stream_socket_accept(self::$server);
-                if ($client) {
+//
+                $read = [self::$server];
+                $write = null;
+                $except = null;
+                $result = stream_select($read,$write,$except,null);
+//                if ($client) {
+                if($result>0){
+                    $client = stream_socket_accept(self::$server,0);
                     echo "有新连接\n";
                     $buf = fread($client, $this->config['max_size']);
                     print_r('接收到的原始数据:' . $buf . "\n");
