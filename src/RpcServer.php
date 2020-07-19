@@ -31,7 +31,7 @@ class RpcServer
         $protocol = isset($rpc_config['protocol']) ? $rpc_config['protocol'] : 'tcp';
         $server = stream_socket_server($protocol . "://{$rpc_config['host']}:{$rpc_config['port']}", $errno, $errstr);
         if (!$server) {
-            exit([$errno, '没有待处理数据' . PHP_EOL]);
+            exit([$errno, 'not link' . PHP_EOL]);
         }
         self::$server = $server;
         $this->serverPath($rpc_config);
