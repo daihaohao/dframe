@@ -29,7 +29,7 @@ class RpcServer
             exit( [$errno,'没有待处理数据'.PHP_EOL] );
         }
         self::$server = $server;
-        $this->serverPath($rpc_config['path']);
+        $this->serverPath($rpc_config);
     }
     private function serverPath($config){
         if (isset($config['path']) && !empty($config['path'])) {
