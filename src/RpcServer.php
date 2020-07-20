@@ -4,6 +4,8 @@
 namespace Aplication;
 
 
+use Firebase\JWT\JWT;
+
 class RpcServer
 {
     /**
@@ -66,9 +68,14 @@ class RpcServer
                     $buf = fread($client, self::$max_size);
                     print_r('接收到的原始数据:' . $buf . "\n");
                     // 自定义协议目的是拿到类方法和参数(可改成自己定义的)
-                    $this->parseProtocol($buf, $class, $method, $params);
-                    // 执行方法
-                    $this->execMethod($client, $class, $method, $params);
+                    $this->parseProtocol($buf, $class, $method, $params, $source, $encrypt_type, $sign);
+                    $verify_data_res = $this->verifyParam($source,$encrypt_type,$params,$sign);
+                    if ($verify_data_res['code']!='OK'){
+                        fwrite($client,json_encode($verify_data_res,256));
+                    }else {
+                        // 执行方法
+                        $this->execMethod($client, $class, $method, $params);
+                    }
                     //关闭客户端
                     fclose($client);
                     echo "关闭了连接\n";
@@ -76,7 +83,26 @@ class RpcServer
             }
         }
     }
-
+    private function verifyParam($source,$encrypt_type,$data,$sign){
+//        var_dump($source,$encrypt_type,$data,$sign);die;
+        switch ($encrypt_type){
+            case 'jwt':
+                $encrypt_config = Config::get('rpc_source');
+                if (!isset($encrypt_config[$source])){
+                    return ['code'=>'ENCRYPT_CONFIG_ERROR','msg'=>'没有配置该资源'];
+                }
+                $encrypt_key = $encrypt_config[$source]['key'];
+                $data = JWT::encode($data,$encrypt_key);
+                if ($data!=$sign){
+                    return ['code'=>'ENCRYPT_ERROR','msg'=>'验签失败'];
+                }
+                return ['code'=>'OK','msg'=>'验签成功'];
+                break;
+            default:
+                return ['code'=>'ENCRYPT_CONFIG_ERROR','msg'=>'不支持的验签方式'];
+                break;
+        }
+    }
     /**
      * @param $class
      * @param $method
@@ -102,16 +128,25 @@ class RpcServer
             fwrite($client, $data);
         }
     }
-
     /**
      * Description: 解析协议
+     * @param $buf
+     * @param $class 类名
+     * @param $method 方法名
+     * @param $params 参数
+     * @param $source 来源
+     * @param $encrypt_type 加密方式
+     * @param $sign 秘钥
      */
-    private function parseProtocol($buf, &$class, &$method, &$params)
+    private function parseProtocol($buf, &$class, &$method, &$params, &$source, &$encrypt_type, &$sign)
     {
         $buf = json_decode($buf, true);
         $class = $buf['class'];
         $method = $buf['method'];
         $params = $buf['params'];
+        $encrypt_type = isset($buf['encrypt_type']) ? $buf['encrypt_type']: '';
+        $sign = isset($buf['sign']) ? $buf['sign']: '';
+        $source = isset($buf['source']) ? $buf['source']: '';
     }
 
     /**
