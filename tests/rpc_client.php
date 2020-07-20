@@ -57,5 +57,5 @@ class RpcClient
 }
 
 $cli = RpcClient::instance('http://127.0.0.1:9999/App');
-echo $cli->test() . "\n";
+echo $cli->test(['action']) . "\n";
 echo $cli->test(array('name' => '戴浩浩', 'age' => 223));
